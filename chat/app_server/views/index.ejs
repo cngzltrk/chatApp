@@ -1,0 +1,76 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <h3>
+        Online Kullanıcılar
+      </h3>
+      <div id="nMessages" style="  height: 320px;   overflow: auto;"></div>
+
+
+    </div>
+    <div class="col-md-6">
+
+        <h2>Hosgeldin <%= username %></h2>
+          <div class="card" >
+            <div id="mesaj" class="card-block">
+              <ul id="messages" class="mess" color="black"></ul>
+
+            </div>
+
+          </div>
+          <br>
+          <form action="">
+            <input type="hidden" id="user" value=<%= username %>>
+            <input id="m" class="form-control" placeholder="Mesaj girin.." autocomplete="off" />
+            <input type="submit" class="btn btn-success"  value="gönder">
+
+          </form>
+    </div>
+
+
+
+    <div class="col-md-3">
+
+
+    </div>
+
+  </div>
+
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+  $(function () {
+    var socket = io();
+    socket.emit('user', $('#user').val());
+    $('form').submit(function(e){
+      e.preventDefault(); // prevents page reloading
+      var mesaj=$('#user').val()+" : "+$('#m').val();
+      socket.emit('chat message', mesaj);
+      $('#m').val('');
+      return false;
+    });
+    socket.on('chat message', function(msg){
+      $('#messages').append($('<li>').text(msg));
+    });
+    socket.on('user', function(msg){
+      $.ajax({
+        url:'listele',
+        type:'GET',
+        dataType:'json',
+        success:(data)=>{
+          var nMessages = document.getElementById("nMessages");
+          nMessages.innerHTML = "";
+          console.log(data[0].username);
+          for (var i = 0; i < data.length; i++) {
+            nMessages.innerHTML = nMessages.innerHTML + "<br>" + data[i].username;
+          }
+
+
+        }
+      });
+    });
+
+
+  });
+</script>
